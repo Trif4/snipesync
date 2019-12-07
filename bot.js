@@ -37,7 +37,8 @@ async function onMessageHandler (channel, userstate, msg, self) {
   if (!msg.startsWith('!')) { return; } // Only listen to commands
   if (!channels.includes('#' + userstate['username'].toLowerCase())
       && userstate['username'].toLowerCase() !== 'trif4') { return; } // Only listen to streamers and Trif
-  
+
+  const channelName = channel.toLowerCase();
   // Remove whitespace from chat message
   const commandName = msg.trim();
 
@@ -103,11 +104,11 @@ async function onMessageHandler (channel, userstate, msg, self) {
     broadcast(activeChannels, '-- The countdown has been cancelled. --');
 
   } else if (commandName === '!sjoin') {
-    if (activeChannels.includes(channel)) {
+    if (activeChannels.includes(channelName)) {
       client.say(channel, 'Already synced. Type !sleave to unsync.');
     } else {
       if(await isVIPOrMod(channel)) {
-        activeChannels.push(channel);
+        activeChannels.push(channelName);
         client.say(channel, 'Synced and ready for countdown! Type !sleave when you want to unsync.');
         console.log(`* ${channel} joined sync`);
       } else {
@@ -116,8 +117,8 @@ async function onMessageHandler (channel, userstate, msg, self) {
     }
 
   } else if (commandName === '!sleave') {
-    if (activeChannels.includes(channel)) {
-      activeChannels = activeChannels.filter(c => c !== channel);
+    if (activeChannels.includes(channelName)) {
+      activeChannels = activeChannels.filter(c => c !== channelName);
       client.say(channel, 'Left synced countdown.');
       console.log(`* ${channel} left sync`);
     } else {
@@ -128,7 +129,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
     client.say(channel, `Currently synced channels: ${activeChannels.join(', ').replace('#', '')}`);
 
   } else if (commandName.startsWith('!sinvite')) {
-    const target = commandName.slice('!sinvite '.length);
+    const target = commandName.slice('!sinvite '.length).toLowerCase();
     if (!!target) {
       console.log(`* Joining channel ${target}`);
       channels.push('#' + target);
@@ -149,7 +150,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
 
   } else if (commandName.startsWith('!sadd')) {
     if (userstate['username'].toLowerCase() !== 'trif4') { return; }
-    const target = commandName.slice('!sadd '.length);
+    const target = commandName.slice('!sadd '.length).toLowerCase();
     if (!!target) {
       console.log(`* Joining channel ${target}`);
       channels.push('#' + target);
