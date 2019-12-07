@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config();
 
 let channels = [process.env.CHANNEL_NAME];
 let activeChannels = [process.env.CHANNEL_NAME];
@@ -85,14 +85,14 @@ async function onMessageHandler (channel, userstate, msg, self) {
     if (!!target) {
       console.log(`* Joining channel ${target}`);
       channels.push('#' + target);
-      client.join('#' + target).then(() => {
-        let msg = `Hi! I'm a bot that counts down for games in every stream simultaneously. Countdowns are set by Blink.`
+      client.join('#' + target).then(async () => {
+        let msg = `Hi! I'm a bot that counts down for games in every stream simultaneously. Countdowns are set by Blink.`;
         if(!await isVIPOrMod(target)) {
-          msg += " Due to Twitch messaging limits, I need VIP or Mod status. Once I've been given this, the"
+          msg += " Due to Twitch messaging limits, I need VIP or Mod status. Once I've been given this, the";
         } else {
-          msg += " The"
+          msg += " The";
         }
-        msg += " streamer can type !sjoin to join synced countdowns."
+        msg += " streamer can type !sjoin to join synced countdowns.";
         client.say('#' + target, msg);
         client.say(channel, `Invited ${target} to join the countdowns.`);
       }).catch((err) => {
@@ -105,7 +105,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
     if (!!target) {
       console.log(`* Joining channel ${target}`);
       channels.push('#' + target);
-      client.join('#' + target).then(() => {
+      client.join('#' + target).then(async () => {
         if(await isVIPOrMod(target)) {
           activeChannels.push(target);
           console.log(`* ${channel} joined sync`);
