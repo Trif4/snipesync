@@ -67,7 +67,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
       broadcast(activeChannels, `-- NEW GAME STARTING AT XX:${minutesString} --`);
     } else {
       duration = countdownLength * 1000;
-      broadcast(activeChannels, `-- NEW GAME STARTING IN ${duration} SECONDS --`);
+      broadcast(activeChannels, `-- NEW GAME STARTING IN ${countdownLength} SECONDS --`);
     }
 
     function countdownMessage(seconds) {
