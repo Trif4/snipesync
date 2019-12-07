@@ -38,7 +38,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
   if (!channels.includes('#' + userstate['username'].toLowerCase())
       && userstate['username'].toLowerCase() !== 'trif4') { return; } // Only listen to streamers and Trif
 
-  const channelName = channel.toLowerCase();
+  const channelName = channel.toLowerCase().slice(1);
   // Remove whitespace from chat message
   const commandName = msg.trim();
 
@@ -186,7 +186,8 @@ function onConnectedHandler (addr, port) {
 
 function broadcast(channels, msg) {
   for (const channel of channels) {
-    client.say(channel, msg);
+    const target = channel.startsWith('#') ? channel : `#${channel}`;
+    client.say(target, msg);
   }
 }
 
