@@ -60,6 +60,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
       const now = moment();
       const target = moment();
       target.minutes(minutes);
+      target.seconds(0);
       if (target.isBefore(now)) {
         target.add(1, 'h');
       }
