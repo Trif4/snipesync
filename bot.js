@@ -64,7 +64,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
         target.add(1, 'h');
       }
       duration = target.diff(now);
-      if (duration / 1000 * 60 > 20) {
+      if (duration / 1000 > 20 * 60) {
         client.say(channel, "You're trying to set a countdown to over 20 minutes in the future. I assume that's a mistake. I'll give you another try.");
         return;
       }
