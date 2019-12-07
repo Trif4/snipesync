@@ -92,7 +92,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
         timeouts.push(setTimeout(countdownMessage, (duration - msLeft), i));
       }
     }
-    console.log(`* Started ${duration * 1000} second countdown`);
+    console.log(`* Started ${duration / 1000} second countdown`);
 
   } else if (commandName === '!scancel') {
     if (!['trif4', 'harddrop'].includes(userstate['username'].toLowerCase())) {
