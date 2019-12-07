@@ -69,7 +69,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
         client.say(channel, "You're trying to set a countdown to over 20 minutes in the future. I assume that's a mistake. I'll give you another try.");
         return;
       }
-      broadcast(activeChannels, `-- NEW GAME STARTING AT XX:${minutesString} --`);
+      broadcast(activeChannels, `-- NEW GAME STARTING AT XX:${minutesString.padStart(2, "0")} --`);
     } else {
       duration = countdownLength * 1000;
       broadcast(activeChannels, `-- NEW GAME STARTING IN ${countdownLength} SECONDS --`);
