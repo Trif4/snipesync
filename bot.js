@@ -64,6 +64,10 @@ async function onMessageHandler (channel, userstate, msg, self) {
         target.add(1, 'h');
       }
       duration = target.diff(now);
+      if (duration * 1000 * 60 > 20) {
+        client.say(channel, "You're trying to set a countdown to over 20 minutes in the future. I assume that's a mistake.");
+        return;
+      }
       broadcast(activeChannels, `-- NEW GAME STARTING AT XX:${minutesString} --`);
     } else {
       duration = countdownLength * 1000;
