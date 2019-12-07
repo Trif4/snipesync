@@ -1,11 +1,13 @@
 require('dotenv').config();
 
+const numbers = /^[0-9]+$/;
 let channels = [process.env.CHANNEL_NAME];
 let activeChannels = [process.env.CHANNEL_NAME];
 let countdownLength = 5;
-
+let timeouts = [];
 
 const tmi = require('tmi.js');
+const moment = require('moment');
 
 // Define configuration options
 const opts = {
@@ -40,24 +42,66 @@ async function onMessageHandler (channel, userstate, msg, self) {
   const commandName = msg.trim();
 
   // If the command is known, let's execute it
-  if (commandName === '!scd') {
-    if (!['trif4', 'harddrop'].includes(userstate['username'].toLowerCase())) { return; }
-    const duration = countdownLength;
-    //const [goodChannels, badChannels] = await getGoodAndBadChannels();
+  if (commandName.startsWith('!scd')) {
+    if (!['trif4', 'harddrop'].includes(userstate['username'].toLowerCase())) {
+      return;
+    }
+
+    let duration;
+
+    const minutesString = commandName.slice('!scd '.length);
+    if (!!minutesString.length) {
+      if (!minutesString.match(numbers)) {
+        client.say(channel, "That doesn't seem right. The syntax is !scd 23 if you want a countdown at XX:23.");
+        return;
+      }
+      const minutes = parseInt(minutesString, 10);
+      const now = moment();
+      const target = moment();
+      target.minutes(minutes);
+      if (target.isBefore(now)) {
+        target.add(1, 'h');
+      }
+      duration = target.diff(now);
+      broadcast(activeChannels, `-- NEW GAME STARTING AT XX:${minutesString} --`);
+    } else {
+      duration = countdownLength * 1000;
+      // broadcast(activeChannels, `-- NEW GAME STARTING IN ${duration} SECONDS --`);
+    }
+
     function countdownMessage(seconds) {
       if (seconds === 0) {
-        broadcast(activeChannels, `GO!`);
+        broadcast(activeChannels, `-- GO! --`);
       } else if (seconds <= 3) {
-        broadcast(activeChannels, `${seconds}...`);
-      } else if (seconds === 5 && duration > 5) {
-        broadcast(activeChannels, '5 seconds left!');
+        broadcast(activeChannels, `-- ${seconds}... --`);
+      } else if (seconds === 5) {
+        broadcast(activeChannels, '-- Get ready! 5 seconds! --');
+      } else if (seconds === 10)  {
+        broadcast(activeChannels, `-- 10 seconds till next game! --`);
+      } else if (seconds === 30)  {
+        broadcast(activeChannels, `-- 30 seconds till next game! --`);
+      } else if (seconds === 60)  {
+        broadcast(activeChannels, `-- Next game starts in 1 minute! --`);
       }
     }
-    broadcast(activeChannels, `-- NEW GAME STARTING IN ${duration} SECONDS --`);
-    for (let i = duration; i >= 0; i--) {
-      setTimeout(countdownMessage, (duration - i)*1000, i);
+
+    for (const i of [0, 1, 2, 3, 5, 10, 30, 60]) {
+      const msLeft = i * 1000;
+      if (msLeft < duration) {
+        timeouts.push(setTimeout(countdownMessage, (duration - msLeft), i));
+      }
     }
-    console.log(`* Started ${duration} second countdown`);
+    console.log(`* Started ${duration * 1000} second countdown`);
+
+  } else if (commandName === '!scancel') {
+    if (!['trif4', 'harddrop'].includes(userstate['username'].toLowerCase())) {
+      return;
+    }
+    for (const timeout of timeouts) {
+      clearTimeout(timeout);
+    }
+    broadcast(activeChannels, '-- The countdown has been cancelled. --');
+
   } else if (commandName === '!sjoin') {
     if (activeChannels.includes(channel)) {
       client.say(channel, 'Already synced. Type !sleave to unsync.');
@@ -70,6 +114,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
         setTimeout(() => client.say(channel, "Sorry, due to Twitch messaging limits, I need a fancy badge to do countdowns properly – please give me VIP or Moderator status, then try again."), 1500);
       }
     }
+
   } else if (commandName === '!sleave') {
     if (activeChannels.includes(channel)) {
       activeChannels = activeChannels.filter(c => c !== channel);
@@ -78,8 +123,10 @@ async function onMessageHandler (channel, userstate, msg, self) {
     } else {
       client.say(channel, 'Not in sync already.');
     }
+
   } else if (commandName === '!slist') {
     client.say(channel, `Currently synced channels: ${activeChannels.join(', ').replace('#', '')}`);
+
   } else if (commandName.startsWith('!sinvite')) {
     const target = commandName.slice('!sinvite '.length);
     if (!!target) {
@@ -99,6 +146,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
         client.say(channel, `Twitch didn't like that. Typo?`);
       })
     }
+
   } else if (commandName.startsWith('!sadd')) {
     if (userstate['username'].toLowerCase() !== 'trif4') { return; }
     const target = commandName.slice('!sadd '.length);
@@ -118,6 +166,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
         client.say(channel, `Twitch didn't like that. Typo?`);
       })
     }
+
   } else {
     console.log(`* Unknown command ${commandName}`);
   }
