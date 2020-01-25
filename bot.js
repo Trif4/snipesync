@@ -188,7 +188,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
       console.log(`* Joining channel ${target}`);
       channels.push('#' + target);
       client.join('#' + target).then(async () => {
-        let msg = `Hi! I'm a bot that counts down for games in every stream simultaneously and distribute room passwords. Countdowns are set by Blink.`;
+        let msg = `Hi! I'm a bot that counts down for games in every stream simultaneously and distributes room passwords. Countdowns are set by Blink.`;
         if(!await isVIPOrMod(target)) {
           msg += " Due to Twitch messaging limits, I need VIP or Mod status. Once I've been given this, the";
         } else {
@@ -212,9 +212,9 @@ async function onMessageHandler (channel, userstate, msg, self) {
         if(await isVIPOrMod(target)) {
           activeChannels.push(target);
           console.log(`* ${channel} joined sync`);
-          client.say('#' + target, "Hi! I'm a bot that counts down for games in every stream simultaneously and distribute room passwords. Countdowns are set by Blink. The streamer can opt out at any time by typing !sleave.");
+          client.say('#' + target, "Hi! I'm a bot that counts down for games in every stream simultaneously and distributes room passwords. Countdowns are set by Blink. The streamer can opt out at any time by typing !sleave.");
         } else {
-          client.say('#' + target, "Hi! I'm a bot that will count down for games in every stream simultaneously and distribute room passwords. Countdowns are set by Blink. Due to Twitch messaging limits, I need VIP or Mod status. Once I've been given this, the streamer can type !sjoin to join synced countdowns.");
+          client.say('#' + target, "Hi! I'm a bot that will count down for games in every stream simultaneously and distributes room passwords. Countdowns are set by Blink. Due to Twitch messaging limits, I need VIP or Mod status. Once I've been given this, the streamer can type !sjoin to join synced countdowns.");
         }
         respond(channel, isWhisper, `Added ${target} to the countdowns.`);
       }).catch((err) => {
