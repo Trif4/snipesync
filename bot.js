@@ -5,6 +5,7 @@ let channels = [process.env.CHANNEL_NAME];
 let activeChannels = [process.env.CHANNEL_NAME];
 let countdownLength = 5;
 let timeouts = [];
+let password = null;
 
 const tmi = require('tmi.js');
 const moment = require('moment');
@@ -34,11 +35,12 @@ client.connect();
 // Called every time a message comes in
 async function onMessageHandler (channel, userstate, msg, self) {
   if (self) { return; } // Ignore messages from the bot
-  if (!msg.startsWith('!')) { return; } // Only listen to commands
+  if (!msg.startsWith('!s')) { return; } // Only listen to commands
   if (!channels.includes('#' + userstate['username'].toLowerCase())
       && userstate['username'].toLowerCase() !== 'trif4') { return; } // Only listen to streamers and Trif
 
   const channelName = channel.toLowerCase().slice(1);
+  const isWhisper = userstate['message-type'] === 'whisper';
   // Remove whitespace from chat message
   const commandName = msg.trim();
 
@@ -53,7 +55,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
     const minutesString = commandName.slice('!scd '.length);
     if (!!minutesString.length) {
       if (!minutesString.match(numbers)) {
-        client.say(channel, "That doesn't seem right. The syntax is !scd 23 if you want a countdown at XX:23.");
+        respond(channel, isWhisper,"That doesn't seem right. The syntax is !scd 23 if you want a countdown at XX:23.");
         return;
       }
       const minutes = parseInt(minutesString, 10);
@@ -67,24 +69,27 @@ async function onMessageHandler (channel, userstate, msg, self) {
       }
       duration = target.diff(now);
       if (duration / 1000 > 20 * 60) {
-        client.say(channel, "You're trying to set a countdown to over 20 minutes in the future. I assume that's a mistake. I'll give you another try.");
+        respond(channel, isWhisper, "You're trying to set a countdown to over 20 minutes in the future. I assume that's a mistake. I'll give you another try.");
         return;
       }
-      broadcast(activeChannels, `-- NEW GAME STARTING AT XX:${minutesString.padStart(2, "0")} --`);
+      const pwMsg = password === null ? '' : '- Password will be distributed shortly before lobby start. ';
+      broadcast(activeChannels, `-- NEW GAME STARTING AT XX:${minutesString.padStart(2, "0")} ${pwMsg}--`);
     } else {
       duration = countdownLength * 1000;
       broadcast(activeChannels, `-- NEW GAME STARTING IN ${countdownLength} SECONDS --`);
     }
 
     function countdownMessage(seconds) {
+      const passwordString = password === null ? '' : `Room password: ${password} `;
+
       if (seconds === 0) {
-        broadcast(activeChannels, `-- GO! --`);
+        broadcast(activeChannels, `-- GO! ${passwordString}--`);
       } else if (seconds <= 3) {
         broadcast(activeChannels, `${seconds}...`);
       } else if (seconds === 5) {
-        broadcast(activeChannels, '-- Get ready! 5 seconds! --');
+        broadcast(activeChannels, `-- Get ready! 5 seconds! ${passwordString}--`);
       } else if (seconds === 10)  {
-        broadcast(activeChannels, `-- 10 seconds till next game! --`);
+        broadcast(activeChannels, `-- 10 seconds till next game! ${passwordString}--`);
       } else if (seconds === 30)  {
         broadcast(activeChannels, `-- 30 seconds till next game! --`);
       } else if (seconds === 60)  {
@@ -109,6 +114,49 @@ async function onMessageHandler (channel, userstate, msg, self) {
     }
     broadcast(activeChannels, '-- The countdown has been cancelled. --');
 
+  } else if (commandName.startsWith('!snow')) {
+    if (!['trif4', 'harddrop'].includes(userstate['username'].toLowerCase())) {
+      return;
+    }
+    let pass = password;
+    const tempPass = commandName.slice('!snow '.length);
+    if (tempPass.length) {
+      if (!tempPass.match(numbers) || tempPass.length !== 6) {
+        respond(channel, isWhisper, "That doesn't seem right. The syntax is !snow 123456.");
+        return;
+      }
+      pass = tempPass;
+    }
+    if (pass === null) {
+      respond(channel, isWhisper, "This command can't be used without first setting a password (!spass 123456). You can also type !snow 123456 to start a lobby with that password without saving it.");
+      return;
+    }
+    broadcast(activeChannels, `-- GAME LOBBY IS NOW OPEN! Room password: ${password} --`);
+    console.log('* Started new immediate lobby');
+
+  } else if (commandName.startsWith('!spass')) {
+    if (!['trif4', 'harddrop'].includes(userstate['username'].toLowerCase())) {
+      return;
+    }
+
+    const pw = commandName.slice('!spass '.length);
+    if (!pw.length || !pw.match(numbers) || pw.length !== 6) {
+      respond(channel, isWhisper, "That doesn't seem right. The syntax is !spass 123456.");
+      return;
+    }
+
+    password = pw;
+    respond(channel, isWhisper, "Password set.");
+    console.log(`* Set password to ${password}`);
+
+  } else if (commandName === '!sclearpass') {
+    if (!['trif4', 'harddrop'].includes(userstate['username'].toLowerCase())) {
+      return;
+    }
+    password = null;
+    respond(channel, isWhisper, "Password cleared.");
+    console.log('* Password cleared');
+
   } else if (commandName === '!sjoin') {
     if (activeChannels.includes(channelName)) {
       client.say(channel, 'Already synced. Type !sleave to unsync.');
@@ -132,7 +180,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
     }
 
   } else if (commandName === '!slist') {
-    client.say(channel, `Currently synced channels: ${activeChannels.join(', ').replace('#', '')}`);
+    respond(channel, isWhisper, `Currently synced channels: ${activeChannels.join(', ').replace('#', '')}`);
 
   } else if (commandName.startsWith('!sinvite')) {
     const target = commandName.slice('!sinvite '.length).toLowerCase();
@@ -140,7 +188,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
       console.log(`* Joining channel ${target}`);
       channels.push('#' + target);
       client.join('#' + target).then(async () => {
-        let msg = `Hi! I'm a bot that counts down for games in every stream simultaneously. Countdowns are set by Blink.`;
+        let msg = `Hi! I'm a bot that counts down for games in every stream simultaneously and distribute room passwords. Countdowns are set by Blink.`;
         if(!await isVIPOrMod(target)) {
           msg += " Due to Twitch messaging limits, I need VIP or Mod status. Once I've been given this, the";
         } else {
@@ -148,9 +196,9 @@ async function onMessageHandler (channel, userstate, msg, self) {
         }
         msg += " streamer can type !sjoin to join synced countdowns.";
         client.say('#' + target, msg);
-        client.say(channel, `Invited ${target} to join the countdowns.`);
+        respond(channel, isWhisper, `Invited ${target} to join the countdowns.`);
       }).catch((err) => {
-        client.say(channel, `Twitch didn't like that. Typo?`);
+        respond(channel, isWhisper, `Twitch didn't like that. Typo?`);
       })
     }
 
@@ -164,13 +212,13 @@ async function onMessageHandler (channel, userstate, msg, self) {
         if(await isVIPOrMod(target)) {
           activeChannels.push(target);
           console.log(`* ${channel} joined sync`);
-          client.say('#' + target, "Hi! I'm a bot that counts down for games in every stream simultaneously. Countdowns are set by Blink. The streamer can opt out at any time by typing !sleave.");
+          client.say('#' + target, "Hi! I'm a bot that counts down for games in every stream simultaneously and distribute room passwords. Countdowns are set by Blink. The streamer can opt out at any time by typing !sleave.");
         } else {
-          client.say('#' + target, "Hi! I'm a bot that will count down for games in every stream simultaneously. Countdowns are set by Blink. Due to Twitch messaging limits, I need VIP or Mod status. Once I've been given this, the streamer can type !sjoin to join synced countdowns.");
+          client.say('#' + target, "Hi! I'm a bot that will count down for games in every stream simultaneously and distribute room passwords. Countdowns are set by Blink. Due to Twitch messaging limits, I need VIP or Mod status. Once I've been given this, the streamer can type !sjoin to join synced countdowns.");
         }
-        client.say(channel, `Added ${target} to countdowns.`);
+        respond(channel, isWhisper, `Added ${target} to the countdowns.`);
       }).catch((err) => {
-        client.say(channel, `Twitch didn't like that. Typo?`);
+        respond(channel, isWhisper, `Twitch didn't like that. Typo?`);
       })
     }
 
@@ -191,20 +239,18 @@ function broadcast(channels, msg) {
   }
 }
 
+function respond(target, whisper, message) {
+  if (whisper) {
+    client.whisper(target, message);
+  } else {
+    client.say(target, message);
+  }
+}
+
 async function isVIPOrMod(channel) {
   const vipsReq = client.vips(channel);
   const modsReq = client.mods(channel);
   const vips = await vipsReq;
   const mods = await modsReq;
   return vips.includes(process.env.BOT_USERNAME.toLowerCase()) || mods.includes(process.env.BOT_USERNAME.toLowerCase());
-}
-
-async function getGoodAndBadChannels() {
-  const results = activeChannels.map(c => ({channel: c, good: isVIPOrMod(c)}));
-  for (const r of results) {
-    r.good = await r.good;
-  }
-  const good = results.filter(r => r.good).map(r => r.channel);
-  const bad = results.filter(r => !r.good).map(r => r.channel);
-  return [good, bad];
 }
