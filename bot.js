@@ -131,7 +131,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
       respond(channel, isWhisper, "This command can't be used without first setting a password (!spass 123456). You can also type !snow 123456 to start a lobby with that password without saving it.");
       return;
     }
-    broadcast(activeChannels, `-- GAME LOBBY IS NOW OPEN! Room password: ${password} --`);
+    broadcast(activeChannels, `-- GAME LOBBY IS NOW OPEN! Room password: ${pass} --`);
     console.log('* Started new immediate lobby');
 
   } else if (commandName.startsWith('!spass')) {
