@@ -211,7 +211,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
       client.join('#' + target).then(async () => {
         if(await isVIPOrMod(target)) {
           activeChannels.push(target);
-          console.log(`* ${channel} joined sync`);
+          console.log(`* ${target} joined sync`);
           client.say('#' + target, "Hi! I'm a bot that counts down for games in every stream simultaneously and distributes room passwords. Countdowns are set by Blink. The streamer can opt out at any time by typing !sleave.");
         } else {
           client.say('#' + target, "Hi! I'm a bot that will count down for games in every stream simultaneously and distributes room passwords. Countdowns are set by Blink. Due to Twitch messaging limits, I need VIP or Mod status. Once I've been given this, the streamer can type !sjoin to join synced countdowns.");
