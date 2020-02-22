@@ -93,6 +93,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
 
       if (seconds === 0) {
         broadcast(activeChannels, `-- GO! ${passwordString}--`);
+        timeouts = [];
       } else if (seconds <= 3) {
         broadcast(activeChannels, `${seconds}...`);
       } else if (seconds === 5) {
@@ -125,6 +126,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
     for (const timeout of timeouts) {
       clearTimeout(timeout);
     }
+    timeouts = [];
     broadcast(activeChannels, '-- The countdown has been cancelled. --');
 
   } else if (commandName.startsWith('!snow')) {
