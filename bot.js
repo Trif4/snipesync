@@ -243,8 +243,8 @@ async function onMessageHandler (channel, userstate, msg, self) {
     }
     const message = commandName.slice('!sannounce '.length);
     if (!!message) {
-      broadcast(activeChannels, `[From ${userstate['username']}]: "${msg}"`);
-      console.log(`* ${userstate['username']} announced: "${msg}"`);
+      broadcast(activeChannels, `[From ${userstate['username']}]: "${message}"`);
+      console.log(`* ${userstate['username']} announced: "${message}"`);
     }
 
   } else {
