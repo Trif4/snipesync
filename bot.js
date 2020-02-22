@@ -207,13 +207,15 @@ async function onMessageHandler (channel, userstate, msg, self) {
     }
 
   } else if (commandName.startsWith('!sadd')) {
-    if (userstate['username'].toLowerCase() !== 'trif4') { return; }
+    if (userstate['username'].toLowerCase() !== 'trif4') {
+      return;
+    }
     const target = commandName.slice('!sadd '.length).toLowerCase();
     if (!!target) {
       console.log(`* Joining channel ${target}`);
       channels.push('#' + target);
       client.join('#' + target).then(async () => {
-        if(await isVIPOrMod(target)) {
+        if (await isVIPOrMod(target)) {
           activeChannels.push(target);
           console.log(`* ${target} joined sync`);
           client.say('#' + target, "Hi! I'm a bot that counts down for games in every stream simultaneously and distributes room passwords. Countdowns are set by Blink. The streamer can opt out at any time by typing !sleave.");
@@ -224,6 +226,16 @@ async function onMessageHandler (channel, userstate, msg, self) {
       }).catch((err) => {
         respond(channel, isWhisper, `Twitch didn't like that. Typo?`);
       })
+    }
+
+  } else if (commandName.startsWith('!sannounce')) {
+    if (!['trif4', 'harddrop'].includes(userstate['username'].toLowerCase())) {
+      return;
+    }
+    const message = commandName.slice('!sannounce '.length);
+    if (!!message) {
+      broadcast(activeChannels, `[From ${userstate['username']}]: "${msg}"`);
+      console.log(`* ${userstate['username']} announced: "${msg}"`);
     }
 
   } else {
