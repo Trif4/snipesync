@@ -76,7 +76,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
         respond(channel, isWhisper, "You're trying to set a countdown to over 20 minutes in the future. I assume that's a mistake. I'll give you another try.");
         return;
       }
-      const pwMsg = password === null ? '' : '- Password will be distributed shortly before lobby start. ';
+      const pwMsg = password === null ? '' : `- Room password: ${password}. Don't join just yet – wait for my countdown. `;
       broadcast(activeChannels, `-- NEW GAME STARTING AT XX:${minutesString.padStart(2, "0")} ${pwMsg}--`);
     } else {
       duration = countdownLength * 1000;
@@ -95,7 +95,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
       } else if (seconds === 10)  {
         broadcast(activeChannels, `-- 10 seconds till next game! ${passwordString}--`);
       } else if (seconds === 30)  {
-        broadcast(activeChannels, `-- 30 seconds till next game! --`);
+        broadcast(activeChannels, `-- 30 seconds till next game! ${passwordString}--`);
       } else if (seconds === 60)  {
         broadcast(activeChannels, `-- Next game starts in 1 minute! --`);
       }
