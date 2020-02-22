@@ -59,6 +59,10 @@ async function onMessageHandler (channel, userstate, msg, self) {
         return;
       }
       const minutes = parseInt(minutesString, 10);
+      if (minutes < 0 || minutes > 59) {
+        respond(channel, isWhisper, `And when exactly does the clock reach XX:${minutesString}..?`);
+        return;
+      }
       const now = moment();
       const target = moment();
       target.minutes(minutes);
