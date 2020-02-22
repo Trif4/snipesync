@@ -50,6 +50,11 @@ async function onMessageHandler (channel, userstate, msg, self) {
       return;
     }
 
+    if (!!timeouts.length) {
+      respond(channel, isWhisper, "A countdown is already in progress. If you want to cancel it, type !scancel.");
+      return;
+    }
+
     let duration;
 
     const minutesString = commandName.slice('!scd '.length);
@@ -60,7 +65,7 @@ async function onMessageHandler (channel, userstate, msg, self) {
       }
       const minutes = parseInt(minutesString, 10);
       if (minutes < 0 || minutes > 59) {
-        respond(channel, isWhisper, `And when exactly does the clock reach XX:${minutesString}..?`);
+        respond(channel, isWhisper, `And when exactly does the clock reach XX:${minutesString.padStart(2, "0")}..?`);
         return;
       }
       const now = moment();
@@ -111,6 +116,10 @@ async function onMessageHandler (channel, userstate, msg, self) {
 
   } else if (commandName === '!scancel') {
     if (!['trif4', 'harddrop'].includes(userstate['username'].toLowerCase())) {
+      return;
+    }
+    if (!timeouts.length) {
+      respond(channel, isWhisper, "There's no currently active countdown.");
       return;
     }
     for (const timeout of timeouts) {
