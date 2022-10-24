@@ -1,7 +1,7 @@
 # snipesync
 This is a very quickly hacked together bot designed specifically for a Tetris community event, the **Hard Drop Tetris 99 Super Lobby**. The bot provides synchronised countdowns in multiple Twitch channel chats to aid players in joining the same public lobby.
 
-Tetris 99 later added a private lobby feature, which largely renders the bot redundant. As such, I'm not planning to clean up the code or add more improvements, but the repository will remain available in case anyone needs a simultaneous multi-stream chat countdown for some other purpose. If you would like to adapt the code, be aware that my Twitch username is hardcoded and should be replaced with your own.
+Tetris 99 later added a private lobby feature, which largely renders the bot redundant. As such, **I'm not planning to clean up the code or add more improvements**, but the repository will remain available in case anyone needs a simultaneous multi-stream chat countdown for some other purpose. If you would like to adapt the code, be aware that my Twitch username is hardcoded and should be replaced with your own.
 
 ## Commands
 Most commands can only be used by the hardcoded owners. Participating streamers can opt in and out of countdowns.
