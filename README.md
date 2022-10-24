@@ -6,13 +6,13 @@ Tetris 99 later added a private lobby feature, which largely renders the bot red
 ## Commands
 Most commands can only be used by the hardcoded owners. Participating streamers can opt in and out of countdowns.
 
-`!scd [minutes]`: Start a synced countdown across all participating channels. If minutes are provided, the bot will count down to when the clock next hits xx minutes. If a room password has been set, it'll be included in the last few countdown messages.
-`!scancel`: Cancel the current countdown.
-`!spass [password]`: Set a room password to be distributed.
-`!sclearpass`: Remove the set password.
-`!snow [password]`: Broadcast an immediate lobby start without a countdown. If a password is supplied, it'll be shown in the broadcast message; otherwise the currently set password from !spass is used.
-`!sinvite [channel]`: Make the bot join another stream and introduce itself briefly.
-`!sjoin`: Opt in to countdowns.
-`!sleave`: Opt out.
-`!slist`: List participating channels.
+`!scd [minutes]`: Start a synced countdown across all participating channels. If minutes are provided, the bot will count down to when the clock next hits xx minutes. If a room password has been set, it'll be included in the last few countdown messages.  
+`!scancel`: Cancel the current countdown.  
+`!spass [password]`: Set a room password to be distributed.  
+`!sclearpass`: Remove the set password.  
+`!snow [password]`: Broadcast an immediate lobby start without a countdown. If a password is supplied, it'll be shown in the broadcast message; otherwise the currently set password from !spass is used.  
+`!sinvite [channel]`: Make the bot join another stream and introduce itself briefly.  
+`!sjoin`: Opt in to countdowns.  
+`!sleave`: Opt out.  
+`!slist`: List participating channels.  
 `!sannounce [message]`: Broadcast a message to all participating streams.
